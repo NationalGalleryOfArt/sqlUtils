@@ -6,14 +6,16 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE function [attendance].[isBusinessHour]( @building nvarchar(16), @dataDateTime datetime ) returns bit as 
+ALTER function [attendance].[isBusinessHour]( @building nvarchar(16), @dataDateTime datetime ) returns 
+	BIT AS
+	-- nvarchar(max) as 
 BEGIN
 
 	DECLARE @dataHour int = DATEPART(HOUR,@dataDateTime);
 	DECLARE @dataDateForRules Date = CAST(@dataDateTime as Date);
 	-- if we're looking at a time of midnight, then we use the rules for the prior day rather than the current day
-	if ( @dataHour = 0 )
-		set @dataDateForRules = DATEADD(DAY,-1,@dataDateForRules);
+	--if ( @dataHour = 0 )
+	--	set @dataDateForRules = DATEADD(DAY,-1,@dataDateForRules);
 	DECLARE @dataYear nvarchar(4) = CAST(DATEPART(YEAR,@dataDateTime) as nvarchar);
 	DECLARE @dMon INT = DATEPART(MONTH, @dataDateForRules);
 	DECLARE @dDay INT = DATEPART(DAY, @dataDateForRules);
@@ -126,7 +128,7 @@ BEGIN
 						DECLARE @startDT DateTime = CAST(CAST(@dataDateForRules as nvarchar) + ' ' + @startHour as DateTime);
 						DECLARE @endDT DateTime = DATEADD(MINUTE,@durationHours*60,@startDT);
 						DECLARE @res BIT;
-						if ( @startDT <= @dataDateTime and @endDT >= @dataDateTime )
+						if ( @startDT <= @dataDateTime and @endDT > @dataDateTime )
 							set @res = @isOpen;
 					    else
 							set @res = ~@isOpen;
